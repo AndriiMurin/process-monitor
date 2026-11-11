@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="ProcPilot.Application/ProcPilot.Application.csproj" />
+  <Project Path="ProcPilot.Desktop/ProcPilot.Desktop.csproj" />
+  <Project Path="ProcPilot.Domain/ProcPilot.Domain.csproj" />
+  <Project Path="ProcPilot.Infrastructure/ProcPilot.Infrastructure.csproj" />
+  <Project Path="ProcPilot.Tests/ProcPilot.Tests.csproj" />
+</Solution>

@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ProcPilot.Application\ProcPilot.Application.csproj" />
+    <ProjectReference Include="..\ProcPilot.Domain\ProcPilot.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

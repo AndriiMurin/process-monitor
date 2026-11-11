@@ -1,0 +1,30 @@
+.vs/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+[Ll]og/
+[Ll]ogs/
+
+### Database ###
+*.accdb
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+
+.env
+.env.*
+
+*.log
