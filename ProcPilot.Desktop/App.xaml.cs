@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using ProcPilot.Infrastructure;
 using ProcPilot.Infrastructure.Database;
@@ -21,10 +22,10 @@ namespace ProcPilot.Desktop
 
             Services = services.BuildServiceProvider();
 
-            // połączenia z bazą SQLite
+            // zastosowanie migracji
             using var scope = Services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            dbContext.Database.EnsureCreated();
+            dbContext.Database.Migrate();
         }
     }
 }
