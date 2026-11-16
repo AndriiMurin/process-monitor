@@ -146,6 +146,57 @@
             <Setter Property="FontSize" Value="26" />
             <Setter Property="FontWeight" Value="Bold" />
         </Style>
+
+        <Style x:Key="ProcessDataGrid" TargetType="DataGrid">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="GridLinesVisibility" Value="None" />
+            <Setter Property="HeadersVisibility" Value="Column" />
+            <Setter Property="AutoGenerateColumns" Value="False" />
+            <Setter Property="CanUserAddRows" Value="False" />
+            <Setter Property="CanUserDeleteRows" Value="False" />
+            <Setter Property="CanUserResizeRows" Value="False" />
+            <Setter Property="IsReadOnly" Value="True" />
+            <Setter Property="SelectionMode" Value="Single" />
+            <Setter Property="SelectionUnit" Value="FullRow" />
+            <Setter Property="RowHeaderWidth" Value="0" />
+            <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+        </Style>
+
+        <Style x:Key="ProcessDataGridHeader" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Foreground" Value="{Binding SelectedTheme.MutedBrush}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Padding" Value="0,0,0,12" />
+        </Style>
+
+        <Style x:Key="ProcessDataGridRow" TargetType="DataGridRow">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{Binding DataContext.SelectedTheme.TextBrush, RelativeSource={RelativeSource AncestorType=Window}}" />
+            <Setter Property="Height" Value="52" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#EEF1F6" />
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#E5E9FF" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ProcessDataGridCell" TargetType="DataGridCell">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="{Binding DataContext.SelectedTheme.TextBrush, RelativeSource={RelativeSource AncestorType=Window}}" />
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -233,24 +284,29 @@
                         <TextBlock Text="Running processes" Foreground="{Binding SelectedTheme.HeadingBrush}" FontSize="19" FontWeight="Bold" Style="{StaticResource AnimatedDashboardItem}" />
                         <TextBlock Text="142 processes found" Foreground="{Binding SelectedTheme.MutedBrush}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource AnimatedDashboardItem}" />
                     </Grid>
-                    <Border Grid.Row="2" Background="{Binding SelectedTheme.CardBrush}" CornerRadius="12" Padding="0,8,0,0" Style="{StaticResource AnimatedDashboardItem}">
-                        <Grid>
-                            <Grid.RowDefinitions><RowDefinition Height="42" /><RowDefinition Height="1" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="2.2*" /><ColumnDefinition Width="1.1*" /><ColumnDefinition Width="1.1*" /><ColumnDefinition Width="1.1*" /><ColumnDefinition Width="1.4*" /></Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="PROCESS" Style="{StaticResource CardTitle}" Margin="20,0" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="PID" Style="{StaticResource CardTitle}" VerticalAlignment="Center" /><TextBlock Grid.Column="2" Text="CPU" Style="{StaticResource CardTitle}" VerticalAlignment="Center" /><TextBlock Grid.Column="3" Text="MEMORY" Style="{StaticResource CardTitle}" VerticalAlignment="Center" /><TextBlock Grid.Column="4" Text="UPTIME" Style="{StaticResource CardTitle}" VerticalAlignment="Center" />
-                            <Border Grid.Row="1" Grid.ColumnSpan="5" Background="#EEF1F6" />
-                            <ItemsControl Grid.Row="2" Grid.ColumnSpan="5" ItemsSource="{Binding Processes}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid Height="52">
-                                            <Grid.ColumnDefinitions><ColumnDefinition Width="2.2*" /><ColumnDefinition Width="1.1*" /><ColumnDefinition Width="1.1*" /><ColumnDefinition Width="1.1*" /><ColumnDefinition Width="1.4*" /></Grid.ColumnDefinitions>
-                                            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="20,0" VerticalAlignment="Center"><Ellipse Width="9" Height="9" Fill="{Binding IndicatorColor}" Margin="0,0,10,0" /><TextBlock Text="{Binding Name}" Foreground="{Binding DataContext.SelectedTheme.TextBrush, RelativeSource={RelativeSource AncestorType=Window}}" VerticalAlignment="Center" /></StackPanel>
-                                            <TextBlock Grid.Column="1" Text="{Binding Pid}" Foreground="#66728A" VerticalAlignment="Center" /><TextBlock Grid.Column="2" Text="{Binding Cpu}" Foreground="#263247" VerticalAlignment="Center" /><TextBlock Grid.Column="3" Text="{Binding Memory}" Foreground="#263247" VerticalAlignment="Center" /><TextBlock Grid.Column="4" Text="{Binding Uptime}" Foreground="#66728A" VerticalAlignment="Center" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </Grid>
+                    <Border Grid.Row="2" Background="{Binding SelectedTheme.CardBrush}" CornerRadius="12" Padding="20,16,20,8" Style="{StaticResource AnimatedDashboardItem}">
+                        <DataGrid ItemsSource="{Binding Processes}"
+                                  Style="{StaticResource ProcessDataGrid}"
+                                  ColumnHeaderStyle="{StaticResource ProcessDataGridHeader}"
+                                  RowStyle="{StaticResource ProcessDataGridRow}"
+                                  CellStyle="{StaticResource ProcessDataGridCell}">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="PROCESS" Width="2.2*">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Ellipse Width="9" Height="9" Fill="{Binding IndicatorColor}" Margin="0,0,10,0" VerticalAlignment="Center" />
+                                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="PID" Binding="{Binding Pid}" Width="1.1*" />
+                                <DataGridTextColumn Header="CPU" Binding="{Binding Cpu}" Width="1.1*" />
+                                <DataGridTextColumn Header="MEMORY" Binding="{Binding Memory}" Width="1.1*" />
+                                <DataGridTextColumn Header="UPTIME" Binding="{Binding Uptime}" Width="1.4*" />
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </Border>
                 </Grid>
 
@@ -259,7 +315,79 @@
                 </Grid>
 
                 <Grid Visibility="{Binding IsPerformance, Converter={StaticResource BooleanToVisibilityConverter}}" Style="{StaticResource AnimatedView}">
-                    <Border Background="{Binding SelectedTheme.CardBrush}" CornerRadius="12" Padding="24" Style="{StaticResource AnimatedPerformanceItem}"><StackPanel><TextBlock Text="Performance" Foreground="{Binding SelectedTheme.HeadingBrush}" FontSize="19" FontWeight="Bold" /><TextBlock Text="Static resource usage preview" Foreground="{Binding SelectedTheme.MutedBrush}" Margin="0,6,0,22" /><TextBlock Text="CPU history" Style="{StaticResource CardTitle}" /><ProgressBar Value="24.8" Maximum="100" Height="12" Margin="0,10,0,22" Foreground="{Binding SelectedTheme.AccentBrush}" /><TextBlock Text="Memory history" Style="{StaticResource CardTitle}" /><ProgressBar Value="40" Maximum="100" Height="12" Margin="0,10,0,0" Foreground="#42A879" /></StackPanel></Border>
+                    <Grid Style="{StaticResource AnimatedPerformanceItem}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Margin="0,0,0,18">
+                            <TextBlock Text="Performance" Foreground="{Binding SelectedTheme.HeadingBrush}" FontSize="19" FontWeight="Bold" />
+                            <TextBlock Text="Static resource usage preview" Foreground="{Binding SelectedTheme.MutedBrush}" Margin="0,6,0,0" />
+                        </StackPanel>
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="18" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Background="{Binding SelectedTheme.CardBrush}" CornerRadius="12" Padding="20">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid>
+                                        <TextBlock Text="CPU USAGE" Style="{StaticResource CardTitle}" />
+                                        <TextBlock Text="24.8%" Foreground="{Binding SelectedTheme.HeadingBrush}" FontSize="25" FontWeight="Bold" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <Viewbox Grid.Row="1" Height="210" Margin="0,18,0,8" Stretch="Fill">
+                                        <Canvas Width="620" Height="190" Background="Transparent">
+                                            <Line X1="0" Y1="30" X2="620" Y2="30" Stroke="#DDE3EE" StrokeDashArray="3,5" />
+                                            <Line X1="0" Y1="95" X2="620" Y2="95" Stroke="#DDE3EE" StrokeDashArray="3,5" />
+                                            <Line X1="0" Y1="160" X2="620" Y2="160" Stroke="#DDE3EE" StrokeDashArray="3,5" />
+                                            <Polyline Points="{Binding CpuChartPoints}" Stroke="{Binding SelectedTheme.AccentBrush}" StrokeThickness="4" StrokeLineJoin="Round" Fill="Transparent" />
+                                            <Ellipse Canvas.Left="580" Canvas.Top="20" Width="12" Height="12" Fill="{Binding SelectedTheme.AccentBrush}" />
+                                        </Canvas>
+                                    </Viewbox>
+                                    <Grid Grid.Row="2">
+                                        <TextBlock Text="60 seconds ago" Foreground="{Binding SelectedTheme.MutedBrush}" FontSize="11" />
+                                        <TextBlock Text="Now" Foreground="{Binding SelectedTheme.MutedBrush}" FontSize="11" HorizontalAlignment="Right" />
+                                    </Grid>
+                                </Grid>
+                            </Border>
+
+                            <Border Grid.Column="2" Background="{Binding SelectedTheme.CardBrush}" CornerRadius="12" Padding="20">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid>
+                                        <TextBlock Text="MEMORY USAGE" Style="{StaticResource CardTitle}" />
+                                        <TextBlock Text="6.4 GB" Foreground="{Binding SelectedTheme.HeadingBrush}" FontSize="25" FontWeight="Bold" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <Viewbox Grid.Row="1" Height="210" Margin="0,18,0,8" Stretch="Fill">
+                                        <Canvas Width="620" Height="190" Background="Transparent">
+                                            <Line X1="0" Y1="30" X2="620" Y2="30" Stroke="#DDE3EE" StrokeDashArray="3,5" />
+                                            <Line X1="0" Y1="95" X2="620" Y2="95" Stroke="#DDE3EE" StrokeDashArray="3,5" />
+                                            <Line X1="0" Y1="160" X2="620" Y2="160" Stroke="#DDE3EE" StrokeDashArray="3,5" />
+                                            <Polyline Points="{Binding MemoryChartPoints}" Stroke="#42A879" StrokeThickness="4" StrokeLineJoin="Round" Fill="Transparent" />
+                                            <Ellipse Canvas.Left="580" Canvas.Top="46" Width="12" Height="12" Fill="#42A879" />
+                                        </Canvas>
+                                    </Viewbox>
+                                    <Grid Grid.Row="2">
+                                        <TextBlock Text="60 seconds ago" Foreground="{Binding SelectedTheme.MutedBrush}" FontSize="11" />
+                                        <TextBlock Text="Now" Foreground="{Binding SelectedTheme.MutedBrush}" FontSize="11" HorizontalAlignment="Right" />
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Grid>
                 </Grid>
 
                 <Grid Visibility="{Binding IsSettings, Converter={StaticResource BooleanToVisibilityConverter}}" Style="{StaticResource AnimatedView}">

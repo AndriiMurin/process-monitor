@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Input;
 using ProcPilot.Desktop.Infrastructure;
@@ -39,6 +40,23 @@ namespace ProcPilot.Desktop.ViewModels
         public ObservableCollection<ThemeOption> Themes { get; }
 
         public ObservableCollection<ProcessRowViewModel> Processes { get; }
+
+        // Mock chart data for the UI prototype. Values use the chart's 620x190 coordinate space.
+        public PointCollection CpuChartPoints { get; } = new()
+        {
+            new Point(0, 145), new Point(45, 132), new Point(90, 138), new Point(135, 98),
+            new Point(180, 112), new Point(225, 76), new Point(270, 92), new Point(315, 54),
+            new Point(360, 67), new Point(405, 42), new Point(450, 61), new Point(495, 30),
+            new Point(540, 48), new Point(585, 25), new Point(620, 35)
+        };
+
+        public PointCollection MemoryChartPoints { get; } = new()
+        {
+            new Point(0, 128), new Point(45, 124), new Point(90, 130), new Point(135, 116),
+            new Point(180, 120), new Point(225, 100), new Point(270, 108), new Point(315, 92),
+            new Point(360, 98), new Point(405, 74), new Point(450, 80), new Point(495, 65),
+            new Point(540, 70), new Point(585, 52), new Point(620, 58)
+        };
 
         public ICommand NavigateCommand { get; }
 
