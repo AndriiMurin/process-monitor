@@ -1,0 +1,28 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using ProcPilot.Infrastructure.Database;
+
+namespace ProcPilot.Infrastructure;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, string? customConnectionString = null)
+    {
+        var connectionString = customConnectionString ?? GetDefaultSqliteConnectionString();
+
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlite(connectionString));
+
+        return services;
+    }
+
+    public static string GetDefaultSqliteConnectionString()
+    {
+        var appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        var dbDirectory = Path.Combine(appDataFolder, "ProcPilot");
+        Directory.CreateDirectory(dbDirectory);
+
+        var dbPath = Path.Combine(dbDirectory, "procpilot.db");
+        return $"Data Source={dbPath}";
+    }
+}
