@@ -213,14 +213,6 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <TextBox Text="{Binding ProcessFilterText, UpdateSourceTrigger=PropertyChanged}"
-                             Foreground="#E5EEF4"
-                             Background="Transparent"
-                             BorderThickness="0"
-                             FontSize="12"
-                             Padding="0,0,0,8"
-                             Margin="0,0,0,22"
-                             ToolTip="Search processes by name" />
                     <StackPanel Grid.Row="1" Margin="0,62,0,0">
                         <Button Command="{Binding NavigateCommand}" CommandParameter="Dashboard" Style="{StaticResource SideNavigationButton}" Content="Dashboard" />
                         <Button Command="{Binding NavigateCommand}" CommandParameter="Processes" Style="{StaticResource SideNavigationButton}" Content="Processes" />
@@ -296,8 +288,41 @@
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
                                 <Grid Margin="0,0,0,13">
-                                    <TextBlock Text="Process activity" Foreground="#F2F6F9" FontSize="15" />
-                                    <TextBlock Text="{Binding ProcessCount, StringFormat={}{0} processes detected}" Foreground="#B9CBD8" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="230" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Process activity" Foreground="#F2F6F9" FontSize="15" />
+                                    <Grid Grid.Column="1" Width="215" HorizontalAlignment="Center">
+                                        <TextBox x:Name="ProcessFilterBox"
+                                                 Text="{Binding ProcessFilterText, UpdateSourceTrigger=PropertyChanged}"
+                                                 Foreground="#EAF5FA"
+                                                 Background="#245C7488"
+                                                 BorderBrush="#42D4E8"
+                                                 BorderThickness="0,0,0,1"
+                                                 FontSize="11"
+                                                 Padding="28,5,8,5"
+                                                 ToolTip="Search processes by name" />
+                                        <TextBlock Text="⌕"
+                                                   IsHitTestVisible="False"
+                                                   Foreground="#B9CBD8"
+                                                   FontSize="17"
+                                                   Margin="8,0,0,1"
+                                                   VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Text, ElementName=ProcessFilterBox}" Value="">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                    <TextBlock Grid.Column="2" Text="{Binding ProcessCount, StringFormat={}{0} processes detected}" Foreground="#B9CBD8" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" />
                                 </Grid>
                                 <DataGrid Grid.Row="1" ItemsSource="{Binding ProcessesView}" Style="{StaticResource ProcessDataGrid}" ColumnHeaderStyle="{StaticResource ProcessDataGridHeader}" RowStyle="{StaticResource ProcessDataGridRow}" CellStyle="{StaticResource ProcessDataGridCell}">
                                     <DataGrid.Columns>
