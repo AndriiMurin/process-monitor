@@ -52,6 +52,14 @@ namespace ProcPilot.Desktop
             Close();
         }
 
+        private void Window_Closed(object? sender, EventArgs e)
+        {
+            if (DataContext is MainWindowViewModel viewModel)
+            {
+                viewModel.Dispose();
+            }
+        }
+
         private void ApplyAcrylicBackdrop()
         {
             var handle = new WindowInteropHelper(this).Handle;

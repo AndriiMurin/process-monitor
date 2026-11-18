@@ -14,6 +14,7 @@
         ResizeMode="CanResize"
         Background="Transparent"
         Loaded="Window_Loaded"
+        Closed="Window_Closed"
         StateChanged="Window_StateChanged"
         MouseLeftButtonDown="Window_MouseLeftButtonDown"
         FontFamily="Segoe UI Light">
@@ -155,7 +156,15 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock Text="⌕" Foreground="#E5EEF4" FontSize="25" Margin="0,-7,0,22" />
+                    <TextBox Text="{Binding ProcessFilterText, UpdateSourceTrigger=PropertyChanged}"
+                             Foreground="#E5EEF4"
+                             Background="Transparent"
+                             BorderThickness="0,0,0,1"
+                             BorderBrush="#7A93A5"
+                             FontSize="12"
+                             Padding="0,0,0,8"
+                             Margin="0,0,0,22"
+                             ToolTip="Search processes by name" />
                     <Border Grid.Row="1" Background="#7A93A5" Height="1" />
 
                     <StackPanel Grid.Row="2" Margin="0,62,0,0">
@@ -167,7 +176,7 @@
 
                     <StackPanel Grid.Row="3">
                         <TextBlock Text="●  System connected" Foreground="#BDEFD9" FontSize="11" />
-                        <TextBlock Text="Live process monitoring" Foreground="#AFC3D0" FontSize="10" Margin="15,5,0,0" />
+                        <TextBlock Text="Live process monitoring · 5 sec" Foreground="#AFC3D0" FontSize="10" Margin="15,5,0,0" />
                     </StackPanel>
                 </Grid>
             </Border>
@@ -182,7 +191,7 @@
 
                 <Grid Grid.Row="0">
                     <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                        <Button Command="{Binding RefreshCommand}" Content="↻" Foreground="#E8F1F6" Background="Transparent" BorderThickness="0" FontSize="21" Width="32" Cursor="Hand" ToolTip="Refresh process data" />
+                        <TextBlock Text="Auto refresh" Foreground="#B9CBD8" FontSize="10" VerticalAlignment="Center" Margin="0,0,14,0" />
                         <Button Content="—" Click="MinimizeButton_Click" Foreground="#E8F1F6" Background="Transparent" BorderThickness="0" FontSize="16" Width="32" Cursor="Hand" ToolTip="Minimize" />
                         <Button x:Name="MaximizeButton" Content="□" Click="MaximizeButton_Click" Foreground="#E8F1F6" Background="Transparent" BorderThickness="0" FontSize="15" Width="32" Cursor="Hand" ToolTip="Maximize" />
                         <Button Content="×" Click="CloseButton_Click" Foreground="#E8F1F6" Background="Transparent" BorderThickness="0" FontSize="19" Width="32" Cursor="Hand" ToolTip="Close" />
@@ -234,7 +243,7 @@
                                     <TextBlock Text="Process activity" Foreground="#F2F6F9" FontSize="15" />
                                     <TextBlock Text="{Binding ProcessCount, StringFormat={}{0} processes detected}" Foreground="#B9CBD8" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" />
                                 </Grid>
-                                <DataGrid Grid.Row="1" ItemsSource="{Binding Processes}" Style="{StaticResource ProcessDataGrid}" ColumnHeaderStyle="{StaticResource ProcessDataGridHeader}" RowStyle="{StaticResource ProcessDataGridRow}" CellStyle="{StaticResource ProcessDataGridCell}">
+                                <DataGrid Grid.Row="1" ItemsSource="{Binding ProcessesView}" Style="{StaticResource ProcessDataGrid}" ColumnHeaderStyle="{StaticResource ProcessDataGridHeader}" RowStyle="{StaticResource ProcessDataGridRow}" CellStyle="{StaticResource ProcessDataGridCell}">
                                     <DataGrid.Columns>
                                         <DataGridTemplateColumn Header="PROCESS" Width="2.3*">
                                             <DataGridTemplateColumn.CellTemplate>
@@ -260,7 +269,7 @@
                             <Grid>
                                 <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
                                 <TextBlock Text="All running processes" Foreground="#F2F6F9" FontSize="15" Margin="0,0,0,15" />
-                                <DataGrid Grid.Row="1" ItemsSource="{Binding Processes}" Style="{StaticResource ProcessDataGrid}" ColumnHeaderStyle="{StaticResource ProcessDataGridHeader}" RowStyle="{StaticResource ProcessDataGridRow}" CellStyle="{StaticResource ProcessDataGridCell}">
+                                <DataGrid Grid.Row="1" ItemsSource="{Binding ProcessesView}" Style="{StaticResource ProcessDataGrid}" ColumnHeaderStyle="{StaticResource ProcessDataGridHeader}" RowStyle="{StaticResource ProcessDataGridRow}" CellStyle="{StaticResource ProcessDataGridCell}">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="PROCESS" Binding="{Binding Name}" Width="2*" />
                                         <DataGridTextColumn Header="PID" Binding="{Binding Pid}" Width="*" />

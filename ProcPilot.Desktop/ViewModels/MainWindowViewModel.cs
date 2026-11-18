@@ -1,7 +1,10 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Input;
+using System.Windows.Threading;
 using ProcPilot.Application.Interfaces;
 using ProcPilot.Desktop.Infrastructure;
 
@@ -14,6 +17,9 @@ namespace ProcPilot.Desktop.ViewModels
         private string _lastUpdated = "Not refreshed yet";
         private string _errorMessage = string.Empty;
         private bool _isLoading;
+        private bool _isAutoRefreshEnabled = true;
+        private string _processFilterText = string.Empty;
+        private readonly DispatcherTimer _refreshTimer;
 
         public MainWindowViewModel(IProcessMonitoringService processMonitoringService)
         {
@@ -31,12 +37,18 @@ namespace ProcPilot.Desktop.ViewModels
 
             _selectedTheme = Themes[0];
             Processes = new ObservableCollection<ProcessRowViewModel>();
+            ProcessesView = CollectionViewSource.GetDefaultView(Processes);
+            ProcessesView.Filter = FilterProcess;
 
             NavigateCommand = new RelayCommand(parameter => Navigate(parameter as string));
             RefreshCommand = new RelayCommand(_ => Refresh());
             SaveSettingsCommand = new RelayCommand(_ => SaveSettings());
 
+            _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
+            _refreshTimer.Tick += RefreshTimer_Tick;
+
             Refresh();
+            _refreshTimer.Start();
         }
 
         private readonly IProcessMonitoringService _processMonitoringService;
@@ -44,6 +56,8 @@ namespace ProcPilot.Desktop.ViewModels
         public ObservableCollection<ThemeOption> Themes { get; }
 
         public ObservableCollection<ProcessRowViewModel> Processes { get; }
+
+        public ICollectionView ProcessesView { get; }
 
         public int ProcessCount => Processes.Count;
 
@@ -131,7 +145,36 @@ namespace ProcPilot.Desktop.ViewModels
             set => SetProperty(ref _selectedTheme, value);
         }
 
-        public bool IsAutoRefreshEnabled { get; set; } = true;
+        public bool IsAutoRefreshEnabled
+        {
+            get => _isAutoRefreshEnabled;
+            set
+            {
+                if (!SetProperty(ref _isAutoRefreshEnabled, value))
+                {
+                    return;
+                }
+
+                if (value)
+                {
+                    Refresh();
+                }
+            }
+        }
+
+        public string ProcessFilterText
+        {
+            get => _processFilterText;
+            set
+            {
+                if (!SetProperty(ref _processFilterText, value))
+                {
+                    return;
+                }
+
+                ProcessesView.Refresh();
+            }
+        }
 
         public bool ShowSystemProcesses { get; set; } = true;
 
@@ -161,6 +204,7 @@ namespace ProcPilot.Desktop.ViewModels
                     Processes.Add(new ProcessRowViewModel(snapshot.Name, snapshot.Pid));
                 }
 
+                ProcessesView.Refresh();
                 OnPropertyChanged(nameof(ProcessCount));
                 LastUpdated = $"Live data refreshed {DateTime.Now:HH:mm:ss}";
             }
@@ -173,6 +217,27 @@ namespace ProcPilot.Desktop.ViewModels
             {
                 IsLoading = false;
             }
+        }
+
+        public void Dispose()
+        {
+            _refreshTimer.Stop();
+            _refreshTimer.Tick -= RefreshTimer_Tick;
+        }
+
+        private void RefreshTimer_Tick(object? sender, EventArgs e)
+        {
+            if (IsAutoRefreshEnabled && !IsLoading)
+            {
+                Refresh();
+            }
+        }
+
+        private bool FilterProcess(object item)
+        {
+            return item is ProcessRowViewModel process
+                && (string.IsNullOrWhiteSpace(ProcessFilterText)
+                    || process.Name.Contains(ProcessFilterText, StringComparison.OrdinalIgnoreCase));
         }
 
         private void SaveSettings()
