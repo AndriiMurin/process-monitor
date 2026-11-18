@@ -137,14 +137,7 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel>
-                    <TextBlock Text="Best Task" Foreground="White" FontSize="35" FontWeight="Bold" />
-                    <TextBlock Text="Management" Foreground="White" FontSize="35" FontWeight="Bold" />
-                    <TextBlock Text="App Design" Foreground="White" FontSize="35" FontWeight="Bold" />
-                    <Border Background="#2F7CF0" CornerRadius="6" Height="5" Width="105" HorizontalAlignment="Left" Margin="0,18,0,0" />
-                    <TextBlock Text="12 Screens" Foreground="White" FontSize="22" FontWeight="SemiBold" Margin="0,38,0,0" />
-                    <TextBlock Text="Live process monitoring" Foreground="#D9E7FF" FontSize="13" Margin="0,6,0,0" />
-
-                    <TextBlock Text="WORKSPACE" Foreground="#C8DCFF" FontSize="10" FontWeight="Bold" Margin="0,70,0,12" />
+                    <TextBlock Text="WORKSPACE" Foreground="#C8DCFF" FontSize="10" FontWeight="Bold" Margin="0,0,0,12" />
                     <Button Command="{Binding NavigateCommand}" CommandParameter="Dashboard" Style="{StaticResource NavigationButton}" Content="  Dashboard" />
                     <Button Command="{Binding NavigateCommand}" CommandParameter="Processes" Style="{StaticResource NavigationButton}" Content="  Processes" />
                     <Button Command="{Binding NavigateCommand}" CommandParameter="Performance" Style="{StaticResource NavigationButton}" Content="  Performance" />
