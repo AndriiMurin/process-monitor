@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Input;
+using ProcPilot.Application.Interfaces;
 using ProcPilot.Desktop.Infrastructure;
 
 namespace ProcPilot.Desktop.ViewModels
@@ -10,10 +11,15 @@ namespace ProcPilot.Desktop.ViewModels
     {
         private string _currentPage = "Dashboard";
         private ThemeOption _selectedTheme;
-        private string _lastUpdated = "Last updated 10:42:18";
+        private string _lastUpdated = "Not refreshed yet";
+        private string _errorMessage = string.Empty;
+        private bool _isLoading;
 
-        public MainWindowViewModel()
+        public MainWindowViewModel(IProcessMonitoringService processMonitoringService)
         {
+            ArgumentNullException.ThrowIfNull(processMonitoringService);
+
+            _processMonitoringService = processMonitoringService;
             Themes = new ObservableCollection<ThemeOption>
             {
                 ThemeOption.Create("Indigo Night", "#5B6CFF", "#172033", "#202B43"),
@@ -24,22 +30,34 @@ namespace ProcPilot.Desktop.ViewModels
             };
 
             _selectedTheme = Themes[0];
-
-            Processes = new ObservableCollection<ProcessRowViewModel>
-            {
-                new("ProcPilot.Desktop", "4820", "12.4%", "128 MB", "02:14:36", "#5B6CFF"),
-                new("explorer", "3912", "4.8%", "86 MB", "05:42:11", "#42A879"),
-                new("ServiceHost", "1084", "2.1%", "64 MB", "01:08:52", "#F1B95A")
-            };
+            Processes = new ObservableCollection<ProcessRowViewModel>();
 
             NavigateCommand = new RelayCommand(parameter => Navigate(parameter as string));
             RefreshCommand = new RelayCommand(_ => Refresh());
             SaveSettingsCommand = new RelayCommand(_ => SaveSettings());
+
+            Refresh();
         }
+
+        private readonly IProcessMonitoringService _processMonitoringService;
 
         public ObservableCollection<ThemeOption> Themes { get; }
 
         public ObservableCollection<ProcessRowViewModel> Processes { get; }
+
+        public int ProcessCount => Processes.Count;
+
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            private set => SetProperty(ref _errorMessage, value);
+        }
+
+        public bool IsLoading
+        {
+            get => _isLoading;
+            private set => SetProperty(ref _isLoading, value);
+        }
 
         // Mock chart data for the UI prototype. Values use the chart's 620x190 coordinate space.
         public PointCollection CpuChartPoints { get; } = new()
@@ -127,7 +145,34 @@ namespace ProcPilot.Desktop.ViewModels
 
         private void Refresh()
         {
-            LastUpdated = $"Preview refreshed {DateTime.Now:HH:mm:ss}";
+            try
+            {
+                IsLoading = true;
+                ErrorMessage = string.Empty;
+
+                var snapshots = _processMonitoringService
+                    .GetRunningProcess()
+                    .OrderBy(snapshot => snapshot.Name, StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(snapshot => snapshot.Pid);
+
+                Processes.Clear();
+                foreach (var snapshot in snapshots)
+                {
+                    Processes.Add(new ProcessRowViewModel(snapshot.Name, snapshot.Pid));
+                }
+
+                OnPropertyChanged(nameof(ProcessCount));
+                LastUpdated = $"Live data refreshed {DateTime.Now:HH:mm:ss}";
+            }
+            catch (Exception exception)
+            {
+                ErrorMessage = $"Unable to load process data: {exception.Message}";
+                LastUpdated = "Refresh failed";
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private void SaveSettings()
@@ -140,14 +185,14 @@ namespace ProcPilot.Desktop.ViewModels
 
     public sealed class ProcessRowViewModel
     {
-        public ProcessRowViewModel(string name, string pid, string cpu, string memory, string uptime, string indicatorColor)
+        public ProcessRowViewModel(string name, int pid)
         {
             Name = name;
-            Pid = pid;
-            Cpu = cpu;
-            Memory = memory;
-            Uptime = uptime;
-            IndicatorColor = (SolidColorBrush)new BrushConverter().ConvertFrom(indicatorColor)!;
+            Pid = pid.ToString();
+            Cpu = "N/A";
+            Memory = "N/A";
+            Uptime = "N/A";
+            IndicatorColor = (SolidColorBrush)new BrushConverter().ConvertFrom("#5B6CFF")!;
         }
 
         public string Name { get; }

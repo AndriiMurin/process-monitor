@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using ProcPilot.Infrastructure.Services;
 using ProcPilot.Desktop.ViewModels;
 
 namespace ProcPilot.Desktop
@@ -8,7 +9,7 @@ namespace ProcPilot.Desktop
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainWindowViewModel();
+            DataContext = new MainWindowViewModel(new ProcessMonitoringService());
         }
     }
 }

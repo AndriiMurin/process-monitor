@@ -271,18 +271,18 @@
                             <ColumnDefinition Width="*" /><ColumnDefinition Width="18" /><ColumnDefinition Width="*" /><ColumnDefinition Width="18" /><ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Background="{Binding SelectedTheme.CardBrush}" CornerRadius="12" Padding="20" Style="{StaticResource AnimatedDashboardItem}">
-                            <StackPanel Style="{StaticResource AnimatedDashboardItem}"><TextBlock Text="CPU USAGE" Style="{StaticResource CardTitle}" /><TextBlock Text="24.8%" Style="{StaticResource CardValue}" Margin="0,8,0,2" /><TextBlock Text="↑ 4.2% from last hour" Foreground="#42A879" FontSize="11" /></StackPanel>
+                            <StackPanel Style="{StaticResource AnimatedDashboardItem}"><TextBlock Text="CPU USAGE" Style="{StaticResource CardTitle}" /><TextBlock Text="Not available" Style="{StaticResource CardValue}" FontSize="20" Margin="0,8,0,2" /><TextBlock Text="The backend currently exposes process identity only" Foreground="{Binding SelectedTheme.MutedBrush}" FontSize="11" TextWrapping="Wrap" /></StackPanel>
                         </Border>
                         <Border Grid.Column="2" Background="{Binding SelectedTheme.CardBrush}" CornerRadius="12" Padding="20" Style="{StaticResource AnimatedDashboardItem}">
-                            <StackPanel Style="{StaticResource AnimatedDashboardItem}"><TextBlock Text="MEMORY USAGE" Style="{StaticResource CardTitle}" /><TextBlock Text="6.4 GB" Style="{StaticResource CardValue}" Margin="0,8,0,2" /><TextBlock Text="of 16 GB available" Foreground="{Binding SelectedTheme.MutedBrush}" FontSize="11" /></StackPanel>
+                            <StackPanel Style="{StaticResource AnimatedDashboardItem}"><TextBlock Text="MEMORY USAGE" Style="{StaticResource CardTitle}" /><TextBlock Text="Not available" Style="{StaticResource CardValue}" FontSize="20" Margin="0,8,0,2" /><TextBlock Text="The backend currently exposes process identity only" Foreground="{Binding SelectedTheme.MutedBrush}" FontSize="11" TextWrapping="Wrap" /></StackPanel>
                         </Border>
                         <Border Grid.Column="4" Background="{Binding SelectedTheme.CardBrush}" CornerRadius="12" Padding="20" Style="{StaticResource AnimatedDashboardItem}">
-                            <StackPanel Style="{StaticResource AnimatedDashboardItem}"><TextBlock Text="ACTIVE PROCESSES" Style="{StaticResource CardTitle}" /><TextBlock Text="142" Style="{StaticResource CardValue}" Margin="0,8,0,2" /><TextBlock Text="↑ 8 since last scan" Foreground="#42A879" FontSize="11" /></StackPanel>
+                            <StackPanel Style="{StaticResource AnimatedDashboardItem}"><TextBlock Text="ACTIVE PROCESSES" Style="{StaticResource CardTitle}" /><TextBlock Text="{Binding ProcessCount}" Style="{StaticResource CardValue}" Margin="0,8,0,2" /><TextBlock Text="Processes returned by the backend" Foreground="{Binding SelectedTheme.MutedBrush}" FontSize="11" /></StackPanel>
                         </Border>
                     </Grid>
                     <Grid Grid.Row="1" Margin="0,0,0,14" Style="{StaticResource AnimatedDashboardItem}">
                         <TextBlock Text="Running processes" Foreground="{Binding SelectedTheme.HeadingBrush}" FontSize="19" FontWeight="Bold" Style="{StaticResource AnimatedDashboardItem}" />
-                        <TextBlock Text="142 processes found" Foreground="{Binding SelectedTheme.MutedBrush}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource AnimatedDashboardItem}" />
+                        <TextBlock Text="{Binding ProcessCount, StringFormat={}{0} processes found}" Foreground="{Binding SelectedTheme.MutedBrush}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{StaticResource AnimatedDashboardItem}" />
                     </Grid>
                     <Border Grid.Row="2" Background="{Binding SelectedTheme.CardBrush}" CornerRadius="12" Padding="20,16,20,8" Style="{StaticResource AnimatedDashboardItem}">
                         <DataGrid ItemsSource="{Binding Processes}"
@@ -311,7 +311,7 @@
                 </Grid>
 
                 <Grid Visibility="{Binding IsProcesses, Converter={StaticResource BooleanToVisibilityConverter}}" Style="{StaticResource AnimatedView}">
-                    <Border Background="{Binding SelectedTheme.CardBrush}" CornerRadius="12" Padding="24" Style="{StaticResource AnimatedProcessesItem}"><StackPanel><TextBlock Text="All processes" Foreground="{Binding SelectedTheme.HeadingBrush}" FontSize="19" FontWeight="Bold" /><TextBlock Text="Static preview of the process list" Foreground="{Binding SelectedTheme.MutedBrush}" Margin="0,6,0,22" /><TextBlock Text="No live process data is connected yet." Foreground="{Binding SelectedTheme.TextBrush}" FontSize="14" /><Button Command="{Binding RefreshCommand}" Content="Refresh process list" Style="{StaticResource PrimaryButton}" Width="170" HorizontalAlignment="Left" Margin="0,24,0,0" /></StackPanel></Border>
+                    <Border Background="{Binding SelectedTheme.CardBrush}" CornerRadius="12" Padding="24" Style="{StaticResource AnimatedProcessesItem}"><StackPanel><TextBlock Text="All processes" Foreground="{Binding SelectedTheme.HeadingBrush}" FontSize="19" FontWeight="Bold" /><TextBlock Text="Live data from the process monitoring backend" Foreground="{Binding SelectedTheme.MutedBrush}" Margin="0,6,0,22" /><TextBlock Text="{Binding ErrorMessage}" Foreground="#C24141" FontSize="14" TextWrapping="Wrap" /><Button Command="{Binding RefreshCommand}" Content="Refresh process list" Style="{StaticResource PrimaryButton}" Width="170" HorizontalAlignment="Left" Margin="0,24,0,0" /></StackPanel></Border>
                 </Grid>
 
                 <Grid Visibility="{Binding IsPerformance, Converter={StaticResource BooleanToVisibilityConverter}}" Style="{StaticResource AnimatedView}">
