@@ -34,6 +34,19 @@ namespace ProcPilot.Desktop
             WindowState = WindowState.Minimized;
         }
 
+        private void MaximizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState == WindowState.Maximized
+                ? WindowState.Normal
+                : WindowState.Maximized;
+        }
+
+        private void Window_StateChanged(object? sender, EventArgs e)
+        {
+            MaximizeButton.Content = WindowState == WindowState.Maximized ? "❐" : "□";
+            MaximizeButton.ToolTip = WindowState == WindowState.Maximized ? "Restore" : "Maximize";
+        }
+
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             Close();
