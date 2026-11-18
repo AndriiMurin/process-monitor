@@ -33,6 +33,10 @@
             <Setter Property="Margin" Value="0,0,0,17" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
+            <Setter Property="RenderTransform">
+                <Setter.Value><ScaleTransform ScaleX="1" ScaleY="1" /></Setter.Value>
+            </Setter>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -42,6 +46,22 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Foreground" Value="White" />
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="1.04" Duration="0:0:0.14" />
+                                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="1.04" Duration="0:0:0.14" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleX" To="1" Duration="0:0:0.14" />
+                                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.ScaleY" To="1" Duration="0:0:0.14" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -88,6 +108,44 @@
             <Setter Property="FontSize" Value="18" />
             <Setter Property="FontFamily" Value="Segoe UI" />
             <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style x:Key="AnimatedPage" TargetType="Grid">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
+            <Setter Property="RenderTransform">
+                <Setter.Value><TranslateTransform Y="14" /></Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Visibility" Value="Visible">
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.28" />
+                                <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(TranslateTransform.Y)" To="0" Duration="0:0:0.34" />
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="AnimatedCard" TargetType="Border">
+            <Setter Property="Opacity" Value="0" />
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
+            <Setter Property="RenderTransform">
+                <Setter.Value><TranslateTransform Y="10" /></Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.35" />
+                            <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(TranslateTransform.Y)" To="0" Duration="0:0:0.4" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Style.Triggers>
         </Style>
 
         <Style x:Key="ProcessDataGrid" TargetType="DataGrid">
@@ -151,7 +209,6 @@
                 <Grid Margin="52,28,30,28">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="1" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
@@ -159,22 +216,19 @@
                     <TextBox Text="{Binding ProcessFilterText, UpdateSourceTrigger=PropertyChanged}"
                              Foreground="#E5EEF4"
                              Background="Transparent"
-                             BorderThickness="0,0,0,1"
-                             BorderBrush="#7A93A5"
+                             BorderThickness="0"
                              FontSize="12"
                              Padding="0,0,0,8"
                              Margin="0,0,0,22"
                              ToolTip="Search processes by name" />
-                    <Border Grid.Row="1" Background="#7A93A5" Height="1" />
-
-                    <StackPanel Grid.Row="2" Margin="0,62,0,0">
+                    <StackPanel Grid.Row="1" Margin="0,62,0,0">
                         <Button Command="{Binding NavigateCommand}" CommandParameter="Dashboard" Style="{StaticResource SideNavigationButton}" Content="Dashboard" />
                         <Button Command="{Binding NavigateCommand}" CommandParameter="Processes" Style="{StaticResource SideNavigationButton}" Content="Processes" />
                         <Button Command="{Binding NavigateCommand}" CommandParameter="Performance" Style="{StaticResource SideNavigationButton}" Content="Performance" />
                         <Button Command="{Binding NavigateCommand}" CommandParameter="Settings" Style="{StaticResource SideNavigationButton}" Content="Settings" />
                     </StackPanel>
 
-                    <StackPanel Grid.Row="3">
+                    <StackPanel Grid.Row="2">
                         <TextBlock Text="●  System connected" Foreground="#BDEFD9" FontSize="11" />
                         <TextBlock Text="Live process monitoring · 5 sec" Foreground="#AFC3D0" FontSize="10" Margin="15,5,0,0" />
                     </StackPanel>
@@ -198,14 +252,16 @@
                     </StackPanel>
                 </Grid>
 
-                <StackPanel Grid.Row="1" Margin="0,18,0,29">
+                <Border Grid.Row="1" Background="#7893A6" Margin="0,0,0,35" />
+
+                <StackPanel Grid.Row="2" Margin="0,0,0,29">
                     <TextBlock Text="System" Foreground="#F6FAFC" FontSize="28" />
                     <TextBlock Text="performance" Foreground="#F6FAFC" FontSize="28" />
                     <TextBlock Text="{Binding LastUpdated}" Foreground="#B9CBD8" FontSize="11" Margin="1,7,0,0" />
                 </StackPanel>
 
-                <Grid Grid.Row="2">
-                    <Grid Visibility="{Binding IsDashboard, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid Grid.Row="3">
+                    <Grid Visibility="{Binding IsDashboard, Converter={StaticResource BooleanToVisibilityConverter}}" Style="{StaticResource AnimatedPage}">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
@@ -233,7 +289,7 @@
                             </StackPanel>
                         </Grid>
 
-                        <Border Grid.Row="1" Background="#1F547080" BorderBrush="#6B899E" BorderThickness="1" Padding="22,18,22,10">
+                        <Border Grid.Row="1" Background="#1F547080" BorderBrush="#6B899E" BorderThickness="1" Padding="22,18,22,10" Style="{StaticResource AnimatedCard}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
@@ -264,8 +320,8 @@
                         </Border>
                     </Grid>
 
-                    <Grid Visibility="{Binding IsProcesses, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <Border Background="#1F547080" BorderBrush="#6B899E" BorderThickness="1" Padding="22,18,22,10">
+                    <Grid Visibility="{Binding IsProcesses, Converter={StaticResource BooleanToVisibilityConverter}}" Style="{StaticResource AnimatedPage}">
+                        <Border Background="#1F547080" BorderBrush="#6B899E" BorderThickness="1" Padding="22,18,22,10" Style="{StaticResource AnimatedCard}">
                             <Grid>
                                 <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
                                 <TextBlock Text="All running processes" Foreground="#F2F6F9" FontSize="15" Margin="0,0,0,15" />
@@ -279,24 +335,24 @@
                         </Border>
                     </Grid>
 
-                    <Grid Visibility="{Binding IsPerformance, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Grid Visibility="{Binding IsPerformance, Converter={StaticResource BooleanToVisibilityConverter}}" Style="{StaticResource AnimatedPage}">
                         <StackPanel>
                             <TextBlock Text="Performance metrics" Foreground="#F2F6F9" FontSize="19" />
                             <TextBlock Text="The connected backend currently provides process names and PIDs." Foreground="#B9CBD8" FontSize="12" Margin="0,6,0,25" TextWrapping="Wrap" />
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="30" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Background="#1F547080" BorderBrush="#6B899E" BorderThickness="1" Padding="20">
+                                <Border Grid.Column="0" Background="#1F547080" BorderBrush="#6B899E" BorderThickness="1" Padding="20" Style="{StaticResource AnimatedCard}">
                                     <StackPanel><TextBlock Text="CPU" Style="{StaticResource PanelTitle}" /><TextBlock Text="N/A" Style="{StaticResource MetricValue}" Margin="0,12,0,0" /><TextBlock Text="Not returned by backend" Style="{StaticResource PanelSubtitle}" Margin="0,4,0,0" /></StackPanel>
                                 </Border>
-                                <Border Grid.Column="2" Background="#1F547080" BorderBrush="#6B899E" BorderThickness="1" Padding="20">
+                                <Border Grid.Column="2" Background="#1F547080" BorderBrush="#6B899E" BorderThickness="1" Padding="20" Style="{StaticResource AnimatedCard}">
                                     <StackPanel><TextBlock Text="MEMORY" Style="{StaticResource PanelTitle}" /><TextBlock Text="N/A" Style="{StaticResource MetricValue}" Margin="0,12,0,0" /><TextBlock Text="Not returned by backend" Style="{StaticResource PanelSubtitle}" Margin="0,4,0,0" /></StackPanel>
                                 </Border>
                             </Grid>
                         </StackPanel>
                     </Grid>
 
-                    <Grid Visibility="{Binding IsSettings, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <Border Background="#1F547080" BorderBrush="#6B899E" BorderThickness="1" Padding="22">
+                    <Grid Visibility="{Binding IsSettings, Converter={StaticResource BooleanToVisibilityConverter}}" Style="{StaticResource AnimatedPage}">
+                        <Border Background="#1F547080" BorderBrush="#6B899E" BorderThickness="1" Padding="22" Style="{StaticResource AnimatedCard}">
                             <StackPanel>
                                 <TextBlock Text="Settings" Foreground="#F2F6F9" FontSize="19" />
                                 <TextBlock Text="Customize monitoring preferences." Foreground="#B9CBD8" FontSize="12" Margin="0,6,0,24" />

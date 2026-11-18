@@ -5,6 +5,8 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Input;
 using System.Windows.Threading;
+using System.Threading;
+using System.Threading.Tasks;
 using ProcPilot.Application.Interfaces;
 using ProcPilot.Desktop.Infrastructure;
 
@@ -20,6 +22,7 @@ namespace ProcPilot.Desktop.ViewModels
         private bool _isAutoRefreshEnabled = true;
         private string _processFilterText = string.Empty;
         private readonly DispatcherTimer _refreshTimer;
+        private readonly SemaphoreSlim _refreshGate = new(1, 1);
 
         public MainWindowViewModel(IProcessMonitoringService processMonitoringService)
         {
@@ -41,13 +44,13 @@ namespace ProcPilot.Desktop.ViewModels
             ProcessesView.Filter = FilterProcess;
 
             NavigateCommand = new RelayCommand(parameter => Navigate(parameter as string));
-            RefreshCommand = new RelayCommand(_ => Refresh());
+            RefreshCommand = new RelayCommand(_ => _ = RefreshAsync());
             SaveSettingsCommand = new RelayCommand(_ => SaveSettings());
 
             _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
             _refreshTimer.Tick += RefreshTimer_Tick;
 
-            Refresh();
+            _ = RefreshAsync();
             _refreshTimer.Start();
         }
 
@@ -157,7 +160,7 @@ namespace ProcPilot.Desktop.ViewModels
 
                 if (value)
                 {
-                    Refresh();
+                    _ = RefreshAsync();
                 }
             }
         }
@@ -186,15 +189,19 @@ namespace ProcPilot.Desktop.ViewModels
             }
         }
 
-        private void Refresh()
+        private async Task RefreshAsync()
         {
+            if (!await _refreshGate.WaitAsync(0))
+            {
+                return;
+            }
+
             try
             {
                 IsLoading = true;
                 ErrorMessage = string.Empty;
 
-                var snapshots = _processMonitoringService
-                    .GetRunningProcess()
+                var snapshots = (await Task.Run(() => _processMonitoringService.GetRunningProcess()))
                     .OrderBy(snapshot => snapshot.Name, StringComparer.OrdinalIgnoreCase)
                     .ThenBy(snapshot => snapshot.Pid);
 
@@ -216,6 +223,7 @@ namespace ProcPilot.Desktop.ViewModels
             finally
             {
                 IsLoading = false;
+                _refreshGate.Release();
             }
         }
 
@@ -229,7 +237,7 @@ namespace ProcPilot.Desktop.ViewModels
         {
             if (IsAutoRefreshEnabled && !IsLoading)
             {
-                Refresh();
+                _ = RefreshAsync();
             }
         }
 
