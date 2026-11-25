@@ -3,27 +3,35 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
-using ProcPilot.Infrastructure.Services;
+using ProcPilot.Application.Interfaces;
 using ProcPilot.Desktop.ViewModels;
 
 namespace ProcPilot.Desktop
 {
     public partial class MainWindow : Window
     {
-        public MainWindow()
+        private Rect? _normalBounds;
+
+        public MainWindow(IProcessMonitoringService processMonitoringService)
         {
             InitializeComponent();
-            DataContext = new MainWindowViewModel(new ProcessMonitoringService());
+            var viewModel = new MainWindowViewModel(processMonitoringService);
+            DataContext = viewModel;
+            CpuGraph.Points = viewModel.CpuChartPoints;
+            MemoryGraph.Points = viewModel.MemoryChartPoints;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            ApplyAcrylicBackdrop();
+            WindowStyle = WindowStyle.None;
+            ResizeMode = ResizeMode.CanResize;
         }
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ButtonState == MouseButtonState.Pressed && e.OriginalSource is not System.Windows.Controls.Button)
+            if (e.ButtonState == MouseButtonState.Pressed
+                && e.OriginalSource is not System.Windows.Controls.Button
+                && e.OriginalSource is not System.Windows.Controls.Primitives.ButtonBase)
             {
                 DragMove();
             }
@@ -36,15 +44,24 @@ namespace ProcPilot.Desktop
 
         private void MaximizeButton_Click(object sender, RoutedEventArgs e)
         {
-            WindowState = WindowState == WindowState.Maximized
-                ? WindowState.Normal
-                : WindowState.Maximized;
-        }
+            if (_normalBounds is Rect normalBounds)
+            {
+                WindowState = WindowState.Normal;
+                Left = normalBounds.Left;
+                Top = normalBounds.Top;
+                Width = normalBounds.Width;
+                Height = normalBounds.Height;
+                _normalBounds = null;
+                return;
+            }
 
-        private void Window_StateChanged(object? sender, EventArgs e)
-        {
-            MaximizeButton.Content = WindowState == WindowState.Maximized ? "❐" : "□";
-            MaximizeButton.ToolTip = WindowState == WindowState.Maximized ? "Restore" : "Maximize";
+            var workArea = SystemParameters.WorkArea;
+            WindowState = WindowState.Normal;
+            _normalBounds = new Rect(Left, Top, Width, Height);
+            Left = workArea.Left;
+            Top = workArea.Top;
+            Width = workArea.Width;
+            Height = workArea.Height;
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
