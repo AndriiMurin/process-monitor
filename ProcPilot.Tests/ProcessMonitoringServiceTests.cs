@@ -63,5 +63,34 @@ namespace ProcPilot.Tests
 
             Assert.Equal(100, percent);
         }
+
+        [Fact]
+        public void GetSystemResources_ReturnsProcessAndMemoryData()
+        {
+            var service = new ProcessMonitoringService();
+
+            var resources = service.GetSystemResources();
+
+            Assert.True(resources.ProcessCount > 0);
+            Assert.True(resources.MemoryUsedMb >= 0);
+            Assert.True(resources.MemoryAvailableMb >= 0);
+            Assert.True(resources.MemoryTotalMb >= resources.MemoryUsedMb);
+        }
+
+        [Fact]
+        public void TerminateProcess_RejectsTheCurrentProcess()
+        {
+            var service = new ProcessMonitoringService();
+
+            Assert.Throws<InvalidOperationException>(() => service.TerminateProcess(Environment.ProcessId));
+        }
+
+        [Fact]
+        public void StartProcess_RejectsAnEmptyPath()
+        {
+            var service = new ProcessMonitoringService();
+
+            Assert.Throws<ArgumentException>(() => service.StartProcess(" "));
+        }
     }
 }

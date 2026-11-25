@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using ProcPilot.Infrastructure.Database;
+using ProcPilot.Application.Interfaces;
+using ProcPilot.Infrastructure.Services;
 
 namespace ProcPilot.Infrastructure;
 
@@ -12,6 +14,7 @@ public static class DependencyInjection
 
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite(connectionString));
+        services.AddSingleton<IProcessMonitoringService, ProcessMonitoringService>();
 
         return services;
     }

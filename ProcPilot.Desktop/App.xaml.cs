@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using ProcPilot.Infrastructure;
 using ProcPilot.Infrastructure.Database;
+using ProcPilot.Desktop.ViewModels;
 
 namespace ProcPilot.Desktop
 {
@@ -19,6 +20,7 @@ namespace ProcPilot.Desktop
 
             var services = new ServiceCollection();
             services.AddInfrastructure();
+            services.AddTransient<MainWindow>();
 
             Services = services.BuildServiceProvider();
 
@@ -26,6 +28,9 @@ namespace ProcPilot.Desktop
             using var scope = Services.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             dbContext.Database.Migrate();
+
+            var window = Services.GetRequiredService<MainWindow>();
+            window.Show();
         }
     }
 }

@@ -9,6 +9,32 @@ namespace ProcPilot.Infrastructure.Services
     {
         private readonly Dictionary<int, CpuMeasurement> _previousMeasurements = new();
 
+        public IReadOnlyList<ProcessSnapshot> GetProcessList()
+        {
+            return Process.GetProcesses()
+                .Select(process =>
+                {
+                    using (process)
+                    {
+                        try
+                        {
+                            return new ProcessSnapshot { Pid = process.Id, Name = process.ProcessName };
+                        }
+                        catch (Win32Exception)
+                        {
+                            return null;
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            return null;
+                        }
+                    }
+                })
+                .Where(snapshot => snapshot is not null)
+                .Cast<ProcessSnapshot>()
+                .ToList();
+        }
+
         public IReadOnlyList<ProcessSnapshot> GetRunningProcess()
         {
             var snapshots = new List<ProcessSnapshot>();
@@ -44,10 +70,10 @@ namespace ProcPilot.Infrastructure.Services
                             }
                         }
 
-                        if (startTime.HasValue && totalProcessorTime.HasValue)
+                        if (totalProcessorTime.HasValue)
                         {
                             if (_previousMeasurements.TryGetValue(snapshot.Pid, out var previous) &&
-                                previous.StartTime == startTime.Value)
+                                (previous.StartTime is null || startTime is null || previous.StartTime == startTime))
                             {
                                 snapshot.CpuPercent = CalculateCpuPercent(
                                     previous.TotalProcessorTime,
@@ -57,7 +83,7 @@ namespace ProcPilot.Infrastructure.Services
                             }
 
                             currentMeasurements[snapshot.Pid] = new CpuMeasurement(
-                                startTime.Value, totalProcessorTime.Value, sampledAt);
+                                startTime, totalProcessorTime.Value, sampledAt);
                         }
 
                         snapshots.Add(snapshot);
@@ -80,6 +106,52 @@ namespace ProcPilot.Infrastructure.Services
             }
 
             return snapshots;
+        }
+
+        public SystemResourceSnapshot GetSystemResources()
+        {
+            var processes = GetRunningProcess();
+            var cpuValues = processes
+                .Where(process => process.CpuPercent.HasValue)
+                .Select(process => process.CpuPercent!.Value)
+                .ToList();
+            var memoryUsedMb = processes
+                .Where(process => process.RamMb.HasValue)
+                .Sum(process => process.RamMb!.Value);
+
+            return new SystemResourceSnapshot
+            {
+                CpuPercent = cpuValues.Count == 0 ? null : Math.Clamp(cpuValues.Sum(), 0, 100),
+                MemoryUsedMb = memoryUsedMb,
+                MemoryAvailableMb = GetAvailableMemoryMb(),
+                ProcessCount = processes.Count
+            };
+        }
+
+        public void TerminateProcess(int processId)
+        {
+            if (processId <= 0 || processId == Environment.ProcessId)
+            {
+                throw new InvalidOperationException("The selected process cannot be terminated.");
+            }
+
+            using var process = Process.GetProcessById(processId);
+            process.Kill(entireProcessTree: true);
+            process.WaitForExit(2000);
+        }
+
+        public void StartProcess(string fileNameOrPath)
+        {
+            if (string.IsNullOrWhiteSpace(fileNameOrPath))
+            {
+                throw new ArgumentException("Enter an executable, command, or file path.", nameof(fileNameOrPath));
+            }
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = fileNameOrPath.Trim(),
+                UseShellExecute = true
+            });
         }
 
         internal static double? CalculateCpuPercent(
@@ -115,9 +187,43 @@ namespace ProcPilot.Infrastructure.Services
             {
                 return null;
             }
+            catch (UnauthorizedAccessException)
+            {
+                return null;
+            }
+        }
+
+        private static double GetAvailableMemoryMb()
+        {
+            var status = new MemoryStatusEx
+            {
+                Length = (uint)System.Runtime.InteropServices.Marshal.SizeOf<MemoryStatusEx>()
+            };
+
+            return GlobalMemoryStatusEx(ref status)
+                ? status.AvailablePhysicalMemory / (1024.0 * 1024.0)
+                : 0;
+        }
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+        private static extern bool GlobalMemoryStatusEx(ref MemoryStatusEx status);
+
+        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+        private struct MemoryStatusEx
+        {
+            public uint Length;
+            public uint MemoryLoad;
+            public ulong TotalPhysicalMemory;
+            public ulong AvailablePhysicalMemory;
+            public ulong TotalPageFile;
+            public ulong AvailablePageFile;
+            public ulong TotalVirtualMemory;
+            public ulong AvailableVirtualMemory;
+            public ulong AvailableExtendedVirtualMemory;
         }
 
         private readonly record struct CpuMeasurement(
-            DateTime StartTime, TimeSpan TotalProcessorTime, DateTime SampledAt);
+            DateTime? StartTime, TimeSpan TotalProcessorTime, DateTime SampledAt);
     }
 }
