@@ -15,6 +15,8 @@ public static class DependencyInjection
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlite(connectionString));
         services.AddSingleton<IProcessMonitoringService, ProcessMonitoringService>();
+        services.AddSingleton<IProcessControlService, ProcessControlService>();
+        services.AddScoped<IBlockedProcessService, BlockedProcessService>();
 
         services.AddScoped<IProcessExecutionHistoryService, ProcessExecutionHistoryService>();
 

@@ -6,6 +6,7 @@ namespace ProcPilot.Infrastructure.Database;
 public class AppDbContext : DbContext
 {
     public DbSet<ProcessExecution> ProcessExecutions => Set<ProcessExecution>();
+    public DbSet<BlockedProcess> BlockedProcesses => Set<BlockedProcess>();
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
@@ -29,6 +30,25 @@ public class AppDbContext : DbContext
 
             entity.Property(e => e.StartedAt)
                   .IsRequired();
+        });
+
+        modelBuilder.Entity<BlockedProcess>(entity =>
+        {
+            entity.ToTable("BlockedProcesses");
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.ProcessName)
+                  .IsRequired()
+                  .HasMaxLength(255);
+
+            entity.Property(e => e.IsEnabled)
+                  .IsRequired();
+
+            entity.Property(e => e.CreatedAt)
+                  .IsRequired();
+
+            entity.HasIndex(e => e.ProcessName)
+                  .IsUnique();
         });
     }
 }
